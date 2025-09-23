@@ -253,5 +253,30 @@ if data_loaded:
     csv = df[['SKU', 'Product_Family', 'Price_Today', 'Assigned_Price_Increase_%',
               'New_Price', 'Revenue_1', 'New_Revenue']].round(2).to_csv(index=False)
     st.download_button("📥 Download SKU-Level Price Plan", data=csv, file_name="price_revision_output.csv")
+    
+    #Scoring file
+    # Prepare SKU-level scoring file
+    sku_scoring_df = df[['SKU', 'Product_Family', 'Product_Group', 
+                         'Score_Sales_Growth', 'Score_Cost_Change', 'Score_GM_Change',
+                         'Score_Elasticity', 'Score_GM_Abs_Change', 'Total_Score',
+                         'Assigned_Price_Increase_%', 'New_Price']].round(2)
+
+    # Export to Excel in memory
+    import io
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        sku_scoring_df.to_excel(writer, index=False, sheet_name='SKU_Scoring')
+        writer.save()
+        processed_data = output.getvalue()
+
+    # Add download button
+    st.download_button(
+        label="📥 Download SKU-Level Scoring & Price Increase",
+        data=processed_data,
+        file_name="sku_scoring_price_increase.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    
 else:
     st.warning("⚠️ Please upload all six input files to start.")
