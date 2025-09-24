@@ -116,6 +116,15 @@ if data_loaded:
     df = df.merge(cost_df, on='SKU', how='left')
     df = df.merge(price_today, on='SKU', how='left')
     df = df.merge(product_class, on='SKU', how='left')
+    
+    df['Revenue_2'] = pd.to_numeric(df['Revenue_2'], errors='coerce').fillna(0)
+    df['Revenue_1'] = pd.to_numeric(df['Revenue_1'], errors='coerce').fillna(0)
+    df['GM%_1'] = pd.to_numeric(df['GM%_1'], errors='coerce').fillna(0)
+    df['GM_1'] = pd.to_numeric(df['GM_1'], errors='coerce').fillna(0)
+    df['GM%_2'] = pd.to_numeric(df['GM%_2'], errors='coerce').fillna(0)
+    df['ASP_2'] = pd.to_numeric(df['ASP_2'], errors='coerce').fillna(0)
+    df['GM_2'] = pd.to_numeric(df['GM_2'], errors='coerce').fillna(0)
+    
 
     df['Sales_Growth_%'] = ((df['Revenue_1'] - df['Revenue_2']) / df['Revenue_2']) * 100
     df['GM%_Change'] = df['GM%_1'] - df['GM%_2']
