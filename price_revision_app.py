@@ -35,7 +35,7 @@ if all(uploaded_files.values()):
     data_loaded = True
     file_paths = uploaded_files
 else:
-    #st.warning(⚠️ Please upload all Six input files to continue.")
+    #st.warning("⚠️ Please upload all Six input files to continue.")
     data_loaded = False
 
     
@@ -97,17 +97,26 @@ def summarize_revenue(df, group_col):
         New_Cost=('New_Cost', 'sum')
     ).reset_index()
 
-    summary['Revenue_Increase_%'] = (
-        (summary['Total_Revenue_New'] - summary['Total_Revenue_Old']) / summary['Total_Revenue_Old']
-    ) * 100
+    # avoid division by zero
+    summary['Revenue_Increase_%'] = np.where(
+        summary['Total_Revenue_Old'] != 0,
+        (summary['Total_Revenue_New'] - summary['Total_Revenue_Old']) / summary['Total_Revenue_Old'] * 100,
+        0.0
+    )
 
-    summary['Cost_Increase_%'] = (
-        (summary['New_Cost'] - summary['TTL_Cost']) / summary['TTL_Cost']
-    ) * 100
+    summary['Cost_Increase_%'] = np.where(
+        summary['TTL_Cost'] != 0,
+        (summary['New_Cost'] - summary['TTL_Cost']) / summary['TTL_Cost'] * 100,
+        0.0
+    )
 
     summary['Old_GM'] = summary['Total_Revenue_Old'] - summary['TTL_Cost']
     summary['New_GM'] = summary['Total_Revenue_New'] - summary['New_Cost']
     summary['GM_Impact'] = summary['New_GM'] - summary['Old_GM']
+
+    # fill any remaining inf / NaNs
+    summary.replace([np.inf, -np.inf], np.nan, inplace=True)
+    summary.fillna(0, inplace=True)
 
     return summary
 
@@ -153,8 +162,9 @@ if data_loaded:
     def scale_score_inverse(series): return 16 - scale_score(series)
 
     def scale_familywise(df, col, inverse=False):
-        scaled = []
+        scaled_series = pd.Series(index=df.index, dtype=float)
         for fam, group in df.groupby('Product_Family'):
+            idx = group.index
             values = group[col].values.reshape(-1, 1)
             if len(values) > 1:
                 scaler = MinMaxScaler(feature_range=(1, 15))
@@ -162,9 +172,12 @@ if data_loaded:
                 if inverse:
                     scaled_vals = 16 - scaled_vals
             else:
-                scaled_vals = np.array([8])  # Midpoint for single-item families
-            scaled.extend(scaled_vals)
-        return pd.Series(scaled, index=df.index)
+                scaled_vals = np.array([8.0])  # Midpoint for single-item families
+            scaled_series.loc[idx] = scaled_vals
+        # If any remaining NaNs (e.g. missing Product_Family), fill with midpoint
+        scaled_series = scaled_series.fillna(8.0)
+        return scaled_series
+
 
     df['Score_Sales_Growth'] = scale_familywise(df, 'Sales_Growth_%')
     df['Score_Cost_Change'] = scale_familywise(df, 'Cost_Change_%', inverse=True)
