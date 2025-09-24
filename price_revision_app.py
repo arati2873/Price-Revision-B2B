@@ -264,6 +264,79 @@ if data_loaded:
     # Display it
     st.subheader("📘 Product Group Level Summary")
     st.dataframe(product_group_summary, use_container_width=True)
+    
+    import plotly.express as px
+
+    # --------------------------------------------
+    # CLEAN & PREPARE full_summary FOR VISUALIZATION
+    # --------------------------------------------
+    viz_df = full_summary[full_summary['Product_Family'] != 'TOTAL'].copy()
+
+    # Ensure revenue and GM columns are numeric
+    cols_to_convert = ['Total_Revenue_Old', 'Total_Revenue_New', 'GM_Impact']
+    for col in cols_to_convert:
+        viz_df[col] = viz_df[col].replace(',', '', regex=True).astype(float)
+
+    # Sort by old revenue
+    viz_df = viz_df.sort_values(by='Total_Revenue_Old')
+
+    # --------------------------------------------
+    # 1️⃣ Revenue Before vs After (Grouped Bar)
+    # --------------------------------------------
+    melted = viz_df.melt(id_vars='Product_Family', value_vars=['Total_Revenue_Old', 'Total_Revenue_New'],
+                         var_name='Revenue Type', value_name='Amount')
+    fig1 = px.bar(
+        melted,
+        x='Product_Family',
+        y='Amount',
+        color='Revenue Type',
+        barmode='group',
+        title='💸 Revenue Before vs After Price Revision',
+        labels={'Product_Family': 'Product Family', 'Amount': 'Revenue (AED)'}
+    )
+    fig1.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(fig1, use_container_width=True)
+
+    # --------------------------------------------
+    # 2️⃣ Gross Margin Impact (Bar)
+    # --------------------------------------------
+    fig2 = px.bar(
+        viz_df.sort_values(by='GM_Impact'),
+        x='Product_Family',
+        y='GM_Impact',
+        title='📊 Gross Margin Impact by Product Family',
+        labels={'GM_Impact': 'GM Impact (AED)', 'Product_Family': 'Product Family'},
+        color='GM_Impact',
+        color_continuous_scale='Blues'
+    )
+    fig2.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(fig2, use_container_width=True)
+
+    # --------------------------------------------
+    # 3️⃣ Price Increase % Distribution (Histogram)
+    # --------------------------------------------
+    fig3 = px.histogram(
+        df,
+        x='Assigned_Price_Increase_%',
+        nbins=20,
+        title='📈 Distribution of Assigned Price Increase %',
+        labels={'Assigned_Price_Increase_%': 'Price Increase (%)'}
+    )
+    st.plotly_chart(fig3, use_container_width=True)
+
+    # --------------------------------------------
+    # 4️⃣ Score vs Price Increase (Scatter)
+    # --------------------------------------------
+    fig4 = px.scatter(
+        df,
+        x='Total_Score',
+        y='Assigned_Price_Increase_%',
+        color='Product_Family',
+        title='📈 Score vs Assigned Price Increase %',
+        labels={'Total_Score': 'Composite Score', 'Assigned_Price_Increase_%': 'Price Increase (%)'},
+        hover_data=['SKU']
+    )
+    st.plotly_chart(fig4, use_container_width=True)
 
     csv = df[['SKU', 'Product_Family', 'Price_Today', 'Assigned_Price_Increase_%',
               'New_Price', 'Revenue_1', 'New_Revenue']].round(2).to_csv(index=False)
