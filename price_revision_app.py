@@ -290,7 +290,7 @@ if data_loaded:
 
     #df['TTL_Cost'] = df['Revenue_1'] * (1 - df['GM%_1'] / 100)
     df['Theoretical_New_Cost'] = df['TTL_Cost'] * (1 + df['Cost_Change_%'] / 100)
-    df['New_Cost'] = df['TTL_Cost'] + (df['Theoretical_New_Cost'] - df['TTL_Cost']) * impact_fraction
+    df['New_Cost'] = df['TTL_Cost'] + (df['Theoretical_New_Cost'] - df['TTL_Cost'])
     #df.drop(columns=['Theoretical_New_Cost'], inplace=True)
 
 
