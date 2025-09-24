@@ -190,6 +190,10 @@ if data_loaded:
     df = apply_global_score_increase(df, non_overridden_mask, 'Score_Normalized', global_target)
 
 
+    df['ASP_1'] = pd.to_numeric(df['ASP_1'], errors='coerce').fillna(0)
+    df['Price_Today'] = pd.to_numeric(df['Price_Today'], errors='coerce').fillna(0)
+    df['Assigned_Price_Increase_%'] = pd.to_numeric(df['Assigned_Price_Increase_%'], errors='coerce').fillna(0)
+   
     df['Estimated_Qty'] = df['Revenue_1'] / df['ASP_1']
     df['New_Price'] = df['Price_Today'] * (1 + df['Assigned_Price_Increase_%'] / 100)
     df['New_Revenue'] = df['Revenue_1'] * (1 + df['Assigned_Price_Increase_%'] / 100)
