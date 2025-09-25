@@ -153,7 +153,7 @@ if data_loaded:
 
     for col in percent_cols:
         if col in df.columns:
-            df[col] = df[col].clip(lower=-100%, upper=100%)
+            df[col] = df[col].clip(lower=-100, upper=100)
 
     def scale_score(series): return MinMaxScaler(feature_range=(1, 15)).fit_transform(series.values.reshape(-1, 1)).flatten()
     def scale_score_inverse(series): return 16 - scale_score(series)
