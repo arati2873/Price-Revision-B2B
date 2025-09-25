@@ -158,7 +158,7 @@ if data_loaded:
     def scale_score(series): return MinMaxScaler(feature_range=(1, 15)).fit_transform(series.values.reshape(-1, 1)).flatten()
     def scale_score_inverse(series): return 16 - scale_score(series)
 
-    df['Score_Sales_Growth'] = scale_score(df['Sales_Growth_%'])
+    df['Score_Sales_Growth'] = scale_score_inverse(df['Sales_Growth_%'])
     df['Score_Cost_Change'] = scale_score(df['Cost_Change_%'])
     df['Score_GM_Change'] = scale_score(df['GM%_Change'])
     df['Score_Elasticity'] = scale_score_inverse(df['Elasticity'])
