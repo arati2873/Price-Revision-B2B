@@ -129,7 +129,7 @@ if data_loaded:
     df['Sales_Growth_%'] = ((df['Revenue_1'] - df['Revenue_2']) / df['Revenue_2']) * 100
     df['GM%_Change'] = df['GM%_1'] - df['GM%_2']
     df['Price_Change_%'] = ((df['ASP_1'] - df['ASP_2']) / df['ASP_2']) * 100
-    df['GM_Abs_Change'] = df['GM_1'] - df['GM_2']
+    df['GM_Abs_Change'] = ((df['GM_1'] - df['GM_2'])/df['GM_2'])*100   
 
     monthly_sales['Month'] = pd.Categorical(
         monthly_sales['Month'],
@@ -148,12 +148,18 @@ if data_loaded:
     df['Elasticity'] = df['Qty_Change_%'] / df['ASP_Change_%'].replace(0, np.nan)
     df['Elasticity'] = df['Elasticity'].fillna(df['Elasticity'].median())
     df = df.reset_index()
+    
+    percent_cols = ["Sales_Growth_%", "GM%_Change", "Price_Change_%","GM_Abs_Change"]
+
+    for col in percent_cols:
+        if col in df.columns:
+            df[col] = df[col].clip(lower=-100%, upper=100%)
 
     def scale_score(series): return MinMaxScaler(feature_range=(1, 15)).fit_transform(series.values.reshape(-1, 1)).flatten()
     def scale_score_inverse(series): return 16 - scale_score(series)
 
     df['Score_Sales_Growth'] = scale_score(df['Sales_Growth_%'])
-    df['Score_Cost_Change'] = scale_score_inverse(df['Cost_Change_%'])
+    df['Score_Cost_Change'] = scale_score(df['Cost_Change_%'])
     df['Score_GM_Change'] = scale_score(df['GM%_Change'])
     df['Score_Elasticity'] = scale_score_inverse(df['Elasticity'])
     df['Score_GM_Abs_Change'] = scale_score(df['GM_Abs_Change'])
