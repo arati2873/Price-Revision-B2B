@@ -161,7 +161,7 @@ if data_loaded:
     df['Score_Sales_Growth'] = scale_score_inverse(df['Sales_Growth_%'])
     df['Score_Cost_Change'] = scale_score(df['Cost_Change_%'])
     df['Score_GM_Change'] = scale_score(df['GM%_Change'])
-    df['Score_Elasticity'] = scale_score_inverse(df['Elasticity'])
+    df['Score_Elasticity'] = scale_score(df['Elasticity'])
     df['Score_GM_Abs_Change'] = scale_score(df['GM_Abs_Change'])
 
     df['Total_Score'] = (
