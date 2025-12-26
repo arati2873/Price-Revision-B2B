@@ -350,11 +350,12 @@ if data_loaded:
     
     #Scoring file
     # Prepare SKU-level scoring file
-    sku_scoring_df = df[['SKU', 'Product_Family', 'Product_Group', 'Sales_Growth_%','GM%_Change','Price_Change_%','GM_Abs_Change','Elasticity','Cost_Increase_%',
+    sku_scoring_df = df[['SKU', 'Product_Family', 'Product_Group', 'Sales_Growth_%', 'GM%_Change',
+                         'Price_Change_%', 'GM_Abs_Change', 'Elasticity', 'Cost_Increase_%',
                          'Score_Sales_Growth', 'Score_Cost_Change', 'Score_GM_Change',
                          'Score_Elasticity', 'Score_GM_Abs_Change', 'Total_Score',
                          'Assigned_Price_Increase_%', 'New_Price']].round(2).to_csv(index=False)
-    st.download_button("📥 Download SKU-Level Scoring Plan", data=sku_scoring_df, file_name="price_revision_output.csv")
+    st.download_button("📥 Download SKU-Level Scoring Plan", data=sku_scoring_df, file_name="Variable score_output.csv")
 
     
 else:
